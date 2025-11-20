@@ -126,6 +126,7 @@ const authStore = useAuthStore();
 const isLogin = ref(true);
 const password = ref('');
 const confirmPassword = ref('');
+const selectedRole = ref<'student' | 'officer' | 'admin'>('student');
 const passwordError = ref('');
 const firstName = ref('');
 const lastName = ref('');
