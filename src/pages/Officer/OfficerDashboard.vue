@@ -1,3 +1,4 @@
+
 <template>
   <q-layout view="hHh lpR fFf">
     <q-header elevated class="bg-green-8 text-white">
@@ -49,7 +50,6 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { ref } from 'vue';
 import { useAuthStore } from 'src/stores/auth-store';
 
 export default defineComponent({
@@ -79,4 +79,4 @@ export default defineComponent({
   cursor: pointer;
 }
 </style>
-
+*/

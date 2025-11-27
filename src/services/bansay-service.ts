@@ -2,6 +2,7 @@ import {
   AuthApi,
   LiabilityApi,
   StudentsApi,
+  UserApi,
   type UserLoginDto,
   type UserRegisterDto,
   type CreateLiabilityDto,
@@ -10,6 +11,8 @@ import {
   type LiabilityControllerFindAllStatusEnum,
   type LiabilityControllerFindAllSortOrderEnum,
   type StudentDto,
+  type UserControllerGetUsersStatusEnum,
+  type UserControllerGetUsersRoleEnum,
 } from './sdk';
 
 export interface QueryLiabilityParams {
@@ -26,9 +29,18 @@ export interface UpdateLiabilityDto {
   dueDate?: string;
 }
 
+export interface PendingUser {
+  username: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: 'Admin' | 'Officer' | 'Student';
+  status: 'Pending' | 'Active' | 'Deactivated';
+}
+
 const isDevEnv = process.env.NODE_ENV == 'development';
 const baseUrl: string = isDevEnv ? 'http://localhost:3030' :
-  'http://ec2-18-219-109-27.us-east-2.compute.amazonaws.com:3030';
+'http://ec2-18-219-109-27.us-east-2.compute.amazonaws.com:3030';
 
 export class BansayService {
   private static instance?: BansayService;
@@ -49,6 +61,13 @@ export class BansayService {
     isJsonMime: () => true,
     accessToken: () => localStorage.getItem('accessToken') || '', //needs local storage token for auth
   });
+
+  private userApi = new UserApi({
+    basePath: baseUrl,
+    isJsonMime: () => true,
+    accessToken: () => localStorage.getItem('accessToken') || '',
+  });
+
 
   static getInstance() {
     this.instance = this.instance || new BansayService();
@@ -75,7 +94,7 @@ export class BansayService {
     const response = await this.authApi.authControllerRegister(data);
     if (response.status == 201 || response.status == 200) {
       if (response.data.user) {
-        // Note: Register might not return a token depending on backend implementation, 
+        // Note: Register might not return a token depending on backend implementation,
         // but if it does or if we want to auto-login, we'd handle it here.
         // The current backend register response seems to only return the user.
         // If auto-login is needed after register, we might need to call login or backend needs to return token.
@@ -85,6 +104,19 @@ export class BansayService {
     } else {
       throw new Error(response.statusText || "Bad Request");
     }
+  }
+
+  async getCurrentUser() {
+    const response = await this.authApi.authControllerGetMe();
+    if (response.status == 200) {
+      return response.data;
+    } else {
+      throw new Error(response.statusText || "Failed to get current user");
+    }
+  }
+
+  logout() {
+    localStorage.removeItem('accessToken');
   }
 
   // liability services
@@ -155,4 +187,25 @@ export class BansayService {
     }
     throw new Error(response.statusText || 'Failed to fetch students');
   }
+
+  // for admins
+
+  // Get users with filters (admin only)
+  async getUsers(
+    status?: UserControllerGetUsersStatusEnum,
+    role?: UserControllerGetUsersRoleEnum
+  ): Promise<PendingUser[]> {
+    const response = await this.userApi.userControllerGetUsers(status, role);
+    return (response as unknown as { data: PendingUser[] }).data;
+  }
+
+  // Approve/patch user (admin only)
+  async patchUser(userId: string, data: object) {
+    const response = await this.userApi.userControllerPatchUser(String(userId), data);
+    if (response.status === 200) {
+      return response.data;
+    }
+    throw new Error(response.statusText || 'Failed to update user');
+  }
+
 }

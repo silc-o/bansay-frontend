@@ -33,6 +33,12 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'admin-dashboard',
         component: () => import('pages/Admin/AdminDashboard.vue'),
+        children: [
+          {
+            path: 'pending-approval',
+            component: () => import('pages/Admin/PendingApprovalPage.vue'),
+          },
+        ],
       },
     ],
   },

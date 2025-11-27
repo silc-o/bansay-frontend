@@ -1,5 +1,6 @@
 <template>
   <q-layout view="hHh lpR fFf">
+    <!-- Header -->
     <q-header elevated class="bg-red-8 text-white">
       <q-toolbar>
         <q-btn flat dense round icon="menu" @click="leftDrawer = !leftDrawer" />
@@ -7,45 +8,71 @@
         <q-btn flat round icon="logout" @click="logout" />
       </q-toolbar>
     </q-header>
+
+    <!-- Drawer -->
     <q-drawer v-model="leftDrawer" show-if-above bordered class="bg-grey-1">
       <q-scroll-area class="fit">
-        <dev class="q-pa-md"></dev>
-        <q-card
-          class="dashboard-card q-mb-md"
-          clickable
-          v-ripple
-          @click="selectCard('User Management')"
-        ></q-card>
+        <div class="q-pa-md"></div>
+
+        <!-- Dashboard Cards -->
         <div class="col-12 col-md-4">
           <q-card class="dashboard-card">
             <q-card-section>
               <div class="text-h6">User Management</div>
-              <div class="text-caption text-grey-7">Manage user accounts and permissions.</div>
+              <div class="text-caption text-grey-7">
+                Manage user accounts and permissions.
+              </div>
             </q-card-section>
             <q-card-actions align="left">
-              <q-btn color="red-8" label="Manage Users" flat />
+              <q-btn
+                color="red-8"
+                label="Manage Users"
+                flat
+                @click="selectCard('User Management')"
+              />
             </q-card-actions>
           </q-card>
         </div>
-        <q-card
-          class="dashboard-card q-mb-md"
-          clickable
-          v-ripple
-          @click="selectCard('System Settings')"
-        ></q-card>
-        <div class="col-12 col-md-4"></div>
 
-        <q-card class="dashboard-card">
-          <q-card-section>
-            <div class="text-h6">System Settings</div>
-            <div class="text-caption text-grey-7">Configure system preferences and settings.</div>
-          </q-card-section>
-          <q-card-actions align="left">
-            <q-btn color="red-8" label="Settings" flat />
-          </q-card-actions>
-        </q-card>
+        <div class="col-12 col-md-4">
+          <q-card class="dashboard-card">
+            <q-card-section>
+              <div class="text-h6">Pending Approvals</div>
+              <div class="text-caption text-grey-7">
+                Review and approve pending user registrations.
+              </div>
+            </q-card-section>
+            <q-card-actions align="left">
+              <q-btn
+                color="red-8"
+                label="View Pending"
+                flat
+                @click="router.push('/admin-dashboard/pending-approval')"
+              />
+            </q-card-actions>
+          </q-card>
+        </div>
+
+        <div class="col-12 col-md-4">
+          <q-card class="dashboard-card">
+            <q-card-section>
+              <div class="text-h6">System Settings</div>
+              <div class="text-caption text-grey-7">
+                Configure system preferences and settings.
+              </div>
+            </q-card-section>
+            <q-card-actions align="left">
+              <q-btn color="red-8" label="Settings" flat />
+            </q-card-actions>
+          </q-card>
+        </div>
       </q-scroll-area>
     </q-drawer>
+
+    <!-- Main Page Container for child routes -->
+    <q-page-container>
+      <router-view />
+    </q-page-container>
   </q-layout>
 </template>
 
@@ -53,12 +80,13 @@
 import { defineComponent } from 'vue';
 import { ref } from 'vue';
 import { useAuthStore } from 'src/stores/auth-store';
+import { useRouter } from 'vue-router';
 
 export default defineComponent({
   name: 'AdminDashboard',
   setup() {
     const leftDrawer = ref(false);
-
+    const router = useRouter();
     function selectCard(name: string) {
       alert(`You clicked ${name}!`);
     }
@@ -68,7 +96,7 @@ export default defineComponent({
       authStore.logout();
     }
 
-    return { leftDrawer, selectCard, logout };
+    return { leftDrawer, selectCard, logout, router };
   },
 });
 </script>
